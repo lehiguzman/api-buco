@@ -1,0 +1,17 @@
+app_insights_php:
+    enabled: true
+    gzip_enabled: false
+    instrumentation_key: "%env(MICROSOFT_APPINSIGHTS_INTRUMENTATION_KEY)%"
+    exceptions:
+        enabled: true
+        ignored_exceptions:
+            - 'Symfony\Component\HttpKernel\Exception\NotFoundHttpException'
+            - 'Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException'
+    dependencies:
+        enabled: true
+    requests:
+        enabled: true
+    traces:
+        enabled: true
+    #doctrine:
+    #    track_dependency: true

@@ -1,0 +1,26 @@
+
+App\Entity\ProfesionalPreRegistro:
+    constraints:
+        - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+            fields: [correo, cedula, tlfCelular]
+            errorPath: correo
+            message: "Este valor {{ value }} ya esta siendo utilizado."
+    properties:
+        correo:
+            - Length:
+                min: 5
+                max: 100
+                minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        tlfCelular:
+            - Length:
+                min: 6
+                max: 10
+                minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        cedula:
+            - Length:
+                min: 5
+                max: 20
+                minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."

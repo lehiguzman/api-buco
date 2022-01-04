@@ -1,0 +1,94 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+    email.sendfrom: "%env(APP_MAILER_FROM)%"
+    email.sendname: "%env(APP_MAILER_TITTLE)%"
+    plataforma.nombre: "%env(APP_MAILER_TITTLE)%"
+    api.version: "%env(APP_VERSION_API)%"
+    api.url: "%env(APP_URL_API)%"
+    ambiente: "%env(APP_AMBIENTE)%"
+    curl_verifypeer: "%env(CURL_VERIFYPEER)%"
+    dir_uploads: "%kernel.project_dir%/public/uploads/"
+    secretkey: "n7D4ArH9AqmgZhy8Bpcp"
+    # Configuración Firebase
+    firebase_app_apikey: "%env(FIREBASE_APP_APIKEY)%"
+    firebase_app_serverkey: "%env(FIREBASE_APP_SERVERKEY)%"
+    # Configuración Microsoft App Insights
+    instrumentation_key: "%env(MICROSOFT_APPINSIGHTS_INTRUMENTATION_KEY)%"
+    # Configuración PayUs (Pasarela de Pagos)
+    payus_url_api: "%env(PAYUS_URL_API)%"
+    payus_guid_comercio: "%env(PAYUS_GUID_COMERCIO)%"
+    payus_guid_cuenta: "%env(PAYUS_GUID_CUENTA)%"
+    payus_apikey: "%env(PAYUS_APIKEY)%"
+    payus_username: "%env(PAYUS_USERNAME)%"
+    payus_password: "%env(PAYUS_PASSWORD)%"
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: "../src/*"
+        exclude: "../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}"
+
+    # controllers are imported separately to make sure services can be injected
+    # as action arguments even if you don't extend any base controller class
+    App\Controller\:
+        resource: "../src/Controller"
+        tags: ["controller.service_arguments", "@doctrine.orm.entity_manager"]
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+
+    # Servicio para enviar correos electrónicos
+    App\Service\SendEmails:
+        arguments:
+            - "@doctrine.orm.entity_manager"
+            - "@mailer"
+            - "@service_container"
+            - "%email.sendfrom%"
+            - "%email.sendname%"
+
+    # Servicio Base para enviar correos electrónicos
+    App\Service\EnvioCorreoServicio:
+        arguments:
+            - "@doctrine.orm.entity_manager"
+            - "@mailer"
+            - "%email.sendfrom%"
+            - "%email.sendname%"
+            - "%plataforma.nombre%"
+
+    # Servicio para conectar con Firebase
+    App\Service\FirebaseServicio:
+        arguments:
+            - "%firebase_app_apikey%"
+            - "%firebase_app_serverkey%"
+            - "%curl_verifypeer%"
+
+    # Servicio para conectar con PayUs (Pasarela de Pago)
+    App\Service\PayUsServicio:
+        arguments:
+            - "@doctrine.orm.entity_manager"
+            - "%payus_url_api%"
+            - "%payus_guid_comercio%"
+            - "%payus_guid_cuenta%"
+            - "%payus_apikey%"
+            - "%payus_username%"
+            - "%payus_password%"
+
+    # Servicio para gestionar los tokens
+    App\Service\GestionPushTokens:
+        arguments:
+            - "@doctrine.orm.entity_manager"
+
+    # Servicio para calcular comisión de Buconexión
+    App\Service\CalcularComisionBuconexion:
+        arguments:
+            - "@doctrine.orm.entity_manager"

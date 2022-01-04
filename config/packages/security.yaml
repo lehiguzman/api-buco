@@ -1,0 +1,47 @@
+security:
+    encoders:
+        App\Entity\User:
+            algorithm: sha512
+        
+    providers:
+        api_user_provider:
+            entity:
+                class: App\Entity\User
+                property: username
+
+    firewalls:
+        login:
+            pattern:  ^/api/login
+            stateless: true
+            anonymous: true
+            form_login:
+                check_path:               /api/login_check
+                success_handler:          lexik_jwt_authentication.handler.authentication_success
+                failure_handler:          lexik_jwt_authentication.handler.authentication_failure
+                require_previous_session: false
+
+        api:
+            pattern:   ^/api/v1
+            stateless: true
+            anonymous: false
+            provider: api_user_provider
+            guard:
+                authenticators:
+                    - lexik_jwt_authentication.jwt_token_authenticator
+
+    role_hierarchy:
+        ROLE_USER:         ROLE_API_INTERNO
+        ROLE_CLIENTE:      ROLE_USER
+        ROLE_PROFESIONAL:  ROLE_CLIENTE
+        ROLE_CALLCENTER:   ROLE_USER
+        ROLE_ADMIN:       [ROLE_CLIENTE, ROLE_PROFESIONAL, ROLE_CALLCENTER]
+        ROLE_API:         [ROLE_API_INTERNO, ROLE_API_EXTERNO]
+        ROLE_SUPER_ADMIN: [ROLE_ALLOWED_TO_SWITCH, ROLE_ADMIN, ROLE_API]
+
+    access_control:
+        - { path: ^/api/login_check,  roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/login,        roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/register,     roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/v1,           roles: IS_AUTHENTICATED_FULLY       }
+        - { path: ^/api/v1/*,          roles: ROLE_API_INTERNO            }
+        - { path: ^/api/v1/externo,    roles: ROLE_API_EXTERNO            }

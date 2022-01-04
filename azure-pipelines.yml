@@ -1,0 +1,185 @@
+# PHP
+# Test and package your PHP project.
+# Add steps that run tests, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/php
+# https://docs.microsoft.com/es-es/azure/devops/pipelines/repos/azure-repos-git?view=azure-devops&tabs=yaml#ci-triggers
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/artifacts/build-artifacts?view=azure-devops&tabs=yaml
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/process/conditions?view=azure-devops&tabs=yaml
+# https://stackoverflow.com/questions/59956206/how-to-get-a-branch-name-with-a-slash-in-azure-devops
+
+trigger:
+  - master
+  - '*develop*'
+  - '*certification*'
+  - '*production*'
+  - '*/feature*'
+  - '*/hotfix*'
+  - '*/fix*'
+  # custom branch
+  - 'jarcia/codeReview'
+
+pool:
+  vmImage: "ubuntu-latest"
+
+variables:
+  phpVersion: 7.4
+  # custom branch
+  branchDeploy: "none" # default: 'none' -- custom: '<BRANCHNAME>'
+  Project.Env.development: " APP_ENV=dev && APP_DEBUG=1 && php7.4 /usr/local/bin/composer dump-env dev 2>/dev/null "
+  Project.Env.certification: " mv .env .env.bk && cp .env.cert .env && APP_ENV=dev && APP_DEBUG=1 && php7.4 /usr/local/bin/composer dump-env dev 2>/dev/null "
+  Project.Env.preproduction: " mv .env.prod .env.prod.bk && cp .env.preprod .env.prod && APP_ENV=prod && APP_DEBUG=0 && php7.4 /usr/local/bin/composer dump-env prod 2>/dev/null "
+  Project.Env.production: " APP_ENV=prod && APP_DEBUG=0 && composer dump-env prod 2>/dev/null "
+  Project.Env.test: " APP_ENV=test && APP_DEBUG=1 && php7.4 /usr/local/bin/composer dump-env test 2>/dev/null "
+  ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
+    Project.Git.currentBranch: " git clean -fd && git checkout -f -B $(Build.SourceBranchName) -t origin/$(System.PullRequest.TargetBranch) 2>/dev/null && git pull origin $(System.PullRequest.TargetBranch) 2>/dev/null && git status 2>/dev/null "
+  ${{ if and(ne(variables['Build.Reason'], 'PullRequest'), eq(variables['branchDeploy'], 'none')) }}:
+    Project.Git.currentBranch: " git clean -fd && git checkout -f -B $(Build.SourceBranchName) -t origin/$(Build.SourceBranchName) 2>/dev/null && git pull origin $(Build.SourceBranchName) 2>/dev/null && git status 2>/dev/null "
+  ${{ if and(ne(variables['Build.Reason'], 'PullRequest'), ne(variables['branchDeploy'], 'none')) }}:
+    Project.Git.currentBranch: " git clean -fd && git checkout -f -B $(Build.SourceBranchName) -t origin/$(branchDeploy) 2>/dev/null && git pull origin $(branchDeploy) 2>/dev/null && git status 2>/dev/null "
+  Project.Git.resetBranch: " git clean -fd 2>/dev/null && git remote prune origin 2>/dev/null && git fetch origin 2>/dev/null && git checkout -f -B master -t origin/master 2>/dev/null && git checkout -f -B production -t origin/production 2>/dev/null && git branch | grep -v 'production' | xargs git branch -D 2>/dev/null && git checkout -f -B master -t origin/master 2>/dev/null && git pull origin master 2>/dev/null "
+  Project.Path.development: " cd /var/www/buco/dev/api "
+  Project.Path.certification: " cd /var/www/buco/cert/api "
+  Project.Path.preproduction: " cd /var/www/buco/prod/api "
+  Project.Path.production: " cd /var/www/buco/prod/api "
+  Project.Path.test: " cd /var/www/buco/test/api "
+  Project.Symfony.assetsSchema: " php7.4 bin/console assets:install && php7.4 bin/console doctrine:schema:update --force "
+  Project.Symfony.backUpsDB: " php7.4 bin/console Buco:db:backup && ls -lhsa var/backupsDB "
+  Project.Symfony.clearCache: " php7.4 bin/console cache:clear && php7.4 bin/console cache:clear -e prod "
+  Project.Symfony.composerUpdate: " php7.4 -d memory_limit=-1 /usr/local/bin/composer update -n 2>errores_composer.log && cat errores_composer.log "
+  Project.Symfony.configFiles: " cp -fv config/packages/prod/nelmio_api_doc.yaml config/packages/nelmio_api_doc.yaml 2>/dev/null "
+  Project.Symfony.dropCreateSchema: " php7.4 bin/console doctrine:schema:drop --force && php7.4 bin/console doctrine:schema:update --force && php7.4 bin/console doctrine:fixtures:load -n "
+  Project.Symfony.lintsTestAbout: " php7.4 bin/console lint:container && php7.4 bin/console lint:twig templates/ && php7.4 bin/console lint:yaml config && php7.4 bin/console about "
+  Project.Symfony.phpUnit: " rm -f phpunit.xml 2>/dev/null && php7.4 bin/phpunit 2>/dev/null "
+  Project.Symfony.removeFiles: " rm -fR vendor/ node_modules/ 2>/dev/null && rm -f composer.lock symfony.lock package-lock.json 2>/dev/null "
+  Project.Symfony.removeCacheLogSessions: " rm -fR var/cache/* var/log/* var/sessions/* 2>/dev/null "
+
+jobs:
+  - job: PHP
+    displayName: "PHP: 7.4"
+    steps:
+      - script: |
+          sudo update-alternatives --set php /usr/bin/php$(phpVersion)
+          sudo update-alternatives --set phar /usr/bin/phar$(phpVersion)
+          sudo update-alternatives --set phpdbg /usr/bin/phpdbg$(phpVersion)
+          sudo update-alternatives --set php-cgi /usr/bin/php-cgi$(phpVersion)
+          sudo update-alternatives --set phar.phar /usr/bin/phar.phar$(phpVersion)
+          $(Project.Symfony.removeFiles)
+          echo -e '\n === php version === \n' && php -version
+          echo -e '\n === composer === \n' && composer -v
+          echo -e '\n === composer update === \n' && composer update -n 2>errores_composer.log && cat errores_composer.log
+          echo -e '\n === composer requirements-checker === \n' && composer require symfony/requirements-checker
+          echo -e '\n === composer recipes === \n' && composer recipes
+          echo -e '\n === php bin/console === \n' && php bin/console
+          echo -e '\n === lint:container === \n' php bin/console lint:container
+          echo -e '\n === lint:twig === \n' php bin/console lint:twig templates/
+          echo -e '\n === lint:yaml === \n' php bin/console lint:yaml config
+          echo -e '\n === symfony about === \n' && php bin/console about
+
+  # only branches: develop | master | certification | production | ${branchDeploy}
+  - job: testPHPUnit
+    displayName: "Pruebas Unitarias"
+    dependsOn: PHP
+    condition: and(succeeded(), or(contains(variables['Build.sourceBranchName'], 'develop'), contains(variables['Build.sourceBranchName'], 'master'), contains(variables['Build.sourceBranchName'], 'certification'), contains(variables['Build.sourceBranchName'], 'production'), contains(variables['branchDeploy'], variables['Build.sourceBranchName'])))
+    steps:
+      - task: SSH@0
+        inputs:
+          sshEndpoint: "ServerTestBuco"
+          runOptions: "inline"
+          inline: "$(Project.Path.test) && $(Project.Git.resetBranch) && $(Project.Git.currentBranch) && php7.4 /usr/local/bin/composer install 2>/dev/null && $(Project.Env.test) && $(Project.Symfony.removeFiles) && $(Project.Symfony.removeCacheLogSessions) && $(Project.Symfony.composerUpdate) && $(Project.Env.test) && $(Project.Symfony.dropCreateSchema) && $(Project.Symfony.clearCache) && $(Project.Symfony.phpUnit) && $(Project.Symfony.lintsTestAbout)"
+          readyTimeout: "20000"
+
+  # only branches: develop | ${branchDeploy}
+  - job: deployDevelopment
+    displayName: "Despliegue Desarrollo"
+    dependsOn: testPHPUnit
+    condition: and(succeeded(), or(eq(variables['Build.sourceBranch'], 'refs/heads/develop'), ne(variables['branchDeploy'], 'none')))
+    steps:
+      - task: SSH@0
+        inputs:
+          sshEndpoint: "ServerTestBuco"
+          runOptions: "inline"
+          inline: "$(Project.Path.development) && $(Project.Git.resetBranch) && $(Project.Git.currentBranch) && $(Project.Env.development) && $(Project.Symfony.backUpsDB) && $(Project.Symfony.removeCacheLogSessions) && $(Project.Symfony.composerUpdate) && $(Project.Env.development) && $(Project.Symfony.assetsSchema) && $(Project.Symfony.clearCache) && git status"
+          readyTimeout: "20000"
+
+  # only branch certification
+  - job: deployCertification
+    displayName: "Despliegue Certificación"
+    dependsOn: testPHPUnit
+    condition: and(succeeded(), eq(variables['Build.sourceBranch'], 'refs/heads/certification'))
+    steps:
+      - task: SSH@0
+        inputs:
+          sshEndpoint: "ServerTestBuco"
+          runOptions: "inline"
+          inline: "$(Project.Path.certification) && $(Project.Git.resetBranch) && $(Project.Git.currentBranch) && $(Project.Env.certification) && $(Project.Symfony.backUpsDB) && $(Project.Symfony.removeCacheLogSessions) && $(Project.Symfony.composerUpdate) && $(Project.Env.certification) && $(Project.Symfony.assetsSchema) && $(Project.Symfony.clearCache) && git status"
+          readyTimeout: "20000"
+
+  # only branches: production | preproduction
+  - job: deployPreProduction
+    displayName: "Despliegue PreProducción"
+    dependsOn: testPHPUnit
+    condition: and(succeeded(), or(eq(variables['Build.sourceBranch'], 'refs/heads/production'), eq(variables['Build.sourceBranch'], 'refs/heads/preproduction')))
+    steps:
+      # Limpiar Cache
+      - task: SSH@0
+        displayName: "Borrar Cache"
+        inputs:
+          sshEndpoint: "ServerTestBucoAdmin"
+          runOptions: "inline"
+          inline: "$(Project.Path.preproduction) && sudo mkdir -p ./var/cache ./var/log ./var/sessions 2>/dev/null && sudo rm -fR ./var/cache/* 2>/dev/null && sudo chmod 777 -fR ./var/cache 2>/dev/null && git status"
+          readyTimeout: "20000"
+
+      # Desplegar en PreProducción
+      - task: SSH@0
+        displayName: "Desplegar en PreProducción"
+        inputs:
+          sshEndpoint: "ServerTestBuco"
+          runOptions: "inline"
+          inline: "$(Project.Path.preproduction) && $(Project.Git.resetBranch) && $(Project.Git.currentBranch) && $(Project.Env.preproduction) && $(Project.Symfony.backUpsDB) && $(Project.Symfony.removeCacheLogSessions) && $(Project.Symfony.composerUpdate) && $(Project.Env.preproduction) && $(Project.Symfony.assetsSchema) && $(Project.Symfony.clearCache) && $(Project.Symfony.configFiles) && git status"
+          readyTimeout: "20000"
+
+      # Limpiar Cache
+      - task: SSH@0
+        displayName: "Borrar Cache"
+        inputs:
+          sshEndpoint: "ServerTestBucoAdmin"
+          runOptions: "inline"
+          inline: "$(Project.Path.preproduction) && sudo mkdir -p ./var/cache ./var/log ./var/sessions 2>/dev/null && sudo chmod 777 -fR ./var/cache ./var/log ./var/sessions 2>/dev/null && git status"
+          readyTimeout: "20000"
+
+  # only branch production (ambiente real)
+  # - job: deployProduction
+  #   displayName: "Release Producción"
+  #   dependsOn: deployPreProduction
+  #   condition: and(succeeded(), or(eq(variables['Build.sourceBranch'], 'refs/heads/production'), eq(variables['Build.sourceBranch'], 'refs/heads/production_release')))
+  #   steps:
+  #     # Limpiar Cache
+  #     - task: SSH@0
+  #       displayName: "Borrar Cache"
+  #       inputs:
+  #         sshEndpoint: "ServerProdBucoAdmin"
+  #         runOptions: "inline"
+  #         inline: "$(Project.Path.production) && sudo rm -fR var/cache/* .git 2>/dev/null"
+  #         readyTimeout: "20000"
+
+  #     # Copy files over SSH
+  #     - task: CopyFilesOverSSH@0
+  #       displayName: "Copiar Archivos"
+  #       inputs:
+  #         sshEndpoint: "ServerProdBuco"
+  #         #sourceFolder: # Optional | copia todos los archivos de la rama
+  #         contents: '**'
+  #         targetFolder: '/var/www/azl/api'
+  #         cleanTargetFolder: false  # false: no borra los archivos existentes
+  #         overwrite: true
+  #         #failOnEmptySource: false # Optional
+  #         #flattenFolders: false # Optional
+
+  #     # Actualizar dependencias
+  #     - task: SSH@0
+  #       displayName: "Actualizar Ambiente"
+  #       inputs:
+  #         sshEndpoint: "ServerProdBuco"
+  #         runOptions: "inline"
+  #         inline: "$(Project.Path.production) && $(Project.Env.production) && $(Project.Symfony.backUpsDB) && $(Project.Symfony.composerUpdate) && $(Project.Env.production) && $(Project.Symfony.assetsSchema) && $(Project.Symfony.clearCache) && $(Project.Symfony.configFiles) && git status && ls -lhsa"
+  #         readyTimeout: "20000"

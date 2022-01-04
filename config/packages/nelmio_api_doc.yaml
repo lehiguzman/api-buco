@@ -1,0 +1,22 @@
+# https://symfony.com/doc/current/bundles/NelmioApiDocBundle/index.html
+# https://symfony.com/doc/current/bundles/NelmioApiDocBundle/areas.html
+nelmio_api_doc:
+    documentation:
+        host: "%env(APP_URL_DOMINIO)%"
+        schemes: [https]
+        info:
+            title: "Documentación API · %plataforma.nombre%"
+            description: "API Rest para %plataforma.nombre%"
+            version: "%api.version%"
+        securityDefinitions:
+            Bearer:
+                type: apiKey
+                description: "Value: Bearer {jwt}"
+                name: Authorization
+                in: header
+        security:
+            - Bearer: []
+    routes: # to filter documented routes
+        path_patterns:
+            - ^/api(?!/doc$) # Accepts routes under /api except /api/doc
+            - ^/api/v1(?!/doc$) # Accepts routes under /api except /api/doc

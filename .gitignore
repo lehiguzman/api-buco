@@ -1,0 +1,152 @@
+# Specifies intentionally untracked files to ignore when using Git
+# http://git-scm.com/docs/gitignore
+
+# -- Sistemas Operativos ------------------------------
+# Windows
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Linux
+.*
+!.gitignore
+!.htaccess
+*~
+
+# Mac OS X
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+
+
+
+# -- Editores -----------------------------------------
+### Vim ###                  https://github.com/github/gitignore/blob/master/Global/Vim.gitignore
+.*.sw[a-z]
+*.un~
+Session.vim
+Sessionx.vim
+.netrwhist
+[._]*.sw[a-p]
+[._]*.un~
+
+### PHPStorm ###
+.idea/
+
+### VisualStudioCode ###     https://github.com/github/gitignore/blob/master/Global/VisualStudioCode.gitignore
+.vscode/*
+.history
+*.code-workspace
+
+### SublimeText ###          https://github.com/github/gitignore/blob/master/Global/SublimeText.gitignore
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-project
+*.sublime-workspace
+
+### Xcode ###                https://github.com/github/gitignore/blob/master/Global/Xcode.gitignore
+xcuserdata/
+UserInterfaceState.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+
+### NetBeans ###             https://github.com/github/gitignore/blob/master/Global/Xcode.gitignore
+**/nbproject/private/
+**/nbproject/Makefile-*.mk
+**/nbproject/Package-*.bash
+nbproject/
+build/
+nbbuild/
+nbdist/
+.nb-gradle/
+nb-configuration.xml
+
+### Other IDEs ###
+.angulardoc.json
+.versions/
+coverage/
+dist/
+node_modules/
+
+
+
+# https://github.com/github/gitignore/blob/master/Symfony.gitignore
+
+# VAR: cache, sessions, log, spool, backups
+/var/backupsDB/*
+/var/cache/*
+/var/log/*
+/var/sessions/*
+/var/spool/*
+!var/backupsDB/.gitkeep
+!var/cache/.gitkeep
+!var/log/.gitkeep
+!var/sessions/.gitkeep
+!var/spool/.gitkeep
+
+# Assets and user uploads
+!/public/.htaccess
+!/public/assets/
+!/public/index.php
+/public/bundles/
+/public/uploads/*
+!/public/bundles/.gitkeep
+!/public/uploads/.gitkeep
+
+# Managed by Composer
+!bin/console
+/vendor/
+
+# PHPUnit
+/bin/phpunit
+/phpunit.xml
+
+# Composer PHAR
+/composer.phar
+
+# Backup entities generated with doctrine:generate:entities command
+**/Entity/*~
+
+# Embedded web-server pid file
+/.web-server-pid
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+!/.env
+!/.env.cert
+!/.env.preprod
+!/.env.prod
+!/.env.test
+
+
+
+# -- Archivos/Carpetas del proyecto -------------------------------------------
+!.editorconfig
+!.gitlab-*
+/docs/log/*
+config/preload.php
+
+###> symfony/web-server-bundle ###
+/.web-server-pid
+###< symfony/web-server-bundle ###
+
+###> symfony/phpunit-bridge ###
+.phpunit
+.phpunit.result.cache
+/phpunit.xml
+###< symfony/phpunit-bridge ###
+
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+!/config/jwt/.gitkeep
+###< lexik/jwt-authentication-bundle ###

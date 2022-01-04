@@ -1,0 +1,5 @@
+app_insights_php:
+    monolog:
+        handlers:
+            trace:
+                level: DEBUG

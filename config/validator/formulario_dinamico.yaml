@@ -1,0 +1,37 @@
+
+App\Entity\FormularioDinamicoServicio:
+    constraints:
+        - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+              fields: [clave]
+              errorPath: clave
+              message: "Este valor {{ value }} ya esta siendo utilizado."
+    properties:
+        servicio:
+            - NotNull:
+                message: Este valor no debe ser nulo.
+        formularioDinamico:
+            - NotNull:
+                message: Este valor no debe ser nulo.
+        nombre:
+            - NotNull:
+                message: Este valor no debe ser nulo.
+            - Length:
+                min: 3
+                max: 80
+                minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        tipo:
+            - NotNull:
+                message: Este valor no debe ser nulo.
+        clave:
+            - NotNull:
+                message: Este valor no debe ser nulo.
+            - Length:
+                min: 3
+                max: 60
+                minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        opciones:
+            - Length:
+                max: 5000
+                maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."

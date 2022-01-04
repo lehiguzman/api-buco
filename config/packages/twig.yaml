@@ -1,0 +1,9 @@
+twig:
+    default_path: '%kernel.project_dir%/templates'
+    debug: '%kernel.debug%'
+    strict_variables: '%kernel.debug%'
+    globals:
+        ambiente: "%ambiente%"
+        version: "%api.version%"
+        apiUrl: "%api.url%"
+        url_domain: '%api.url%'

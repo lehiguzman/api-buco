@@ -1,0 +1,156 @@
+image: ubuntu:latest
+stages:
+  - optional
+  - deploy
+  - logs
+
+
+# https://docs.gitlab.com/ce/ci/variables/README.html#gitlab-ci-yaml-defined-variables
+variables:
+  CHMOD_CACHE_FILES: " chmod -Rf 777 var/cache var/log var/sessions "
+  CLEAR_CACHE_FILES: " rm -Rf var/cache/**/* var/log/*.log var/sessions/**/* "
+  CLEAR_CACHE_SF: " php bin/console cache:clear && php bin/console cache:clear -e prod "
+  COMPOSER_INSTALL_PROD: " php -d memory_limit=-1 /usr/bin/composer install -n --no-dev --optimize-autoloader "
+  COMPOSER_INSTALL: " php -d memory_limit=-1 /usr/local/bin/composer install -n "
+  COMPOSER_UPDATE: " php -d memory_limit=-1 /usr/local/bin/composer update -n "
+  PATH_DEVELOPMENT: " cd /var/www/buco-api "
+  PATH_PRODUCTION: "  "
+  REMOVE_FILES: " rm -Rf vendor/* symfony.lock composer.lock "
+  SYMFONY_ASSETS_SCHEMA: " php bin/console assets:install && php bin/console doctrine:schema:update --force "
+
+
+# scripts global -- servidor Test (Desarrollo)
+before_script:
+  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+  - eval $(ssh-agent -s)
+  - ssh-add <(echo "$SSH_PK_SERVER_TEST")
+  - mkdir -p ~/.ssh
+  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+
+
+# # INSTALAR RAMA EN SERVIDOR
+instalarDesarrollo:
+  stage: optional
+  script:
+    - ssh sfstrapp@$SERVIDOR_TEST "$PATH_DEVELOPMENT && git fetch origin && git checkout -b $CI_COMMIT_REF_NAME origin/$CI_COMMIT_REF_NAME -f && git pull origin $CI_COMMIT_REF_NAME && git status"
+  when: manual
+  except:
+    - master
+  environment:
+    name: integracion
+    url: http://apibuco.strappinc.net/
+  tags:
+  - gitlab-org
+
+# # Checking Requirements Automatically
+# https://symfony.com/doc/current/reference/requirements.html
+CheckingRequirementsAutomatically:
+  stage: optional
+  script:
+    - ssh sfstrapp@$SERVIDOR_TEST "$PATH_DEVELOPMENT && composer require symfony/requirements-checker &&  composer remove symfony/requirements-checker"
+  when: manual
+  environment:
+    name: integracion
+    url: http://apibuco.strappinc.net/
+  tags:
+  - gitlab-org
+
+# # BORRAR CACHE SERVER TEST
+borrarCacheDesarrollo:
+  stage: optional
+  script:
+    - ssh sfstrapp@$SERVIDOR_TEST "$PATH_DEVELOPMENT && echo -e '\n\n ========== \t logs PROD \t ========== \n' && [ -f var/log/prod.log ] && tail -n 50 ./var/log/prod.log || echo '' && echo -e '\n\n ========== \t logs DEV  \t ========== \n' && [ -f var/log/dev.log ] && tail -n 50 ./var/log/dev.log || echo '' && $CLEAR_CACHE_FILES"
+  when: manual
+  except:
+    - master
+  environment:
+    name: integracion
+    url: http://apibuco.strappinc.net/
+  tags:
+  - gitlab-org
+
+
+# # COMPOSER INSTALL
+composerInstall:
+  stage: optional
+  script:
+    - ssh sfstrapp@$SERVIDOR_TEST "$PATH_DEVELOPMENT && $COMPOSER_INSTALL"
+  when: manual
+  except:
+    - master
+  environment:
+    name: integracion
+    url: http://apibuco.strappinc.net/
+  tags:
+  - gitlab-org
+
+# # COMPOSER UPDATE
+composerUpdate:
+  stage: optional
+  script:
+    - ssh sfstrapp@$SERVIDOR_TEST "$PATH_DEVELOPMENT && $CHMOD_CACHE_FILES && $CLEAR_CACHE_FILES && $REMOVE_FILES && $COMPOSER_UPDATE"
+  when: manual
+  except:
+    - master
+  environment:
+    name: integracion
+    url: http://apibuco.strappinc.net/
+  tags:
+  - gitlab-org
+
+
+# # DESPLIEGUE AMBIENTE DESARROLLO
+deployDesarrollo:
+  stage: deploy
+  script:
+    - ssh sfstrapp@$SERVIDOR_TEST "$PATH_DEVELOPMENT && git fetch origin develop && git checkout develop -f && git pull origin develop && composer dump-env dev && $COMPOSER_UPDATE && APP_ENV=dev APP_DEBUG=1"
+  #when: manual
+  only:
+    - develop
+  environment:
+    name: desarrollo
+    url: http://apibuco.strappinc.net/
+  tags:
+  - gitlab-org
+
+
+# # DESPLIEGUE AMBIENTE PRODUCCIÓN
+# deployProduccion:
+#   stage: deploy
+#   before_script:
+#     - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+#     - eval $(ssh-agent -s)
+#     - ssh-add <(echo "$SSH_PK_SERVER_PROD")
+#     - mkdir -p ~/.ssh
+#     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+#   script:
+#     - ssh pasareladepago@$SERVIDOR_PROD "$PATH_DEVELOPMENT && git fetch origin master && git checkout master -f && git pull origin master && export SYMFONY_ENV=prod && $COMPOSER_INSTALL_PROD && composer dump-env prod && php bin/console assets:install && php bin/console doctrine:schema:update --force --em=default && APP_ENV=prod APP_DEBUG=0 $CLEAR_CACHE_SF"
+#   when: manual
+#   only:
+#     - master
+#   environment:
+#     name: produccion
+#     url: http://www.pasareladepago.com/
+#   tags:
+#     - gitlab-org
+
+
+# # LOGS AMBIENTE PRODUCCIÓN
+# logsProduccion:
+#   stage: logs
+#   before_script:
+#     - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+#     - eval $(ssh-agent -s)
+#     - ssh-add <(echo "$SSH_PK_SERVER_PROD")
+#     - mkdir -p ~/.ssh
+#     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+#   script:
+#     - ssh pasareladepago@$SERVIDOR_PROD "$PATH_DEVELOPMENT && echo -e '\n\n ========== \t logs PROD \t ========== \n' && tail -n 30 ./var/logs/prod.log && echo -e '\n\n ========== \t logs DEV  \t ========== \n' && [ -f var/logs/dev.log ] && tail -n 50 ./var/logs/dev.log || echo ''"
+#   when: manual
+#   only:
+#     - master
+#   environment:
+#     name: produccion
+#     url: http://www.pasareladepago.com/
+#   tags:
+#     - gitlab-org

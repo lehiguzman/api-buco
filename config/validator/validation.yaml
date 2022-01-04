@@ -1,0 +1,509 @@
+# https://symfony.com/doc/current/reference/constraints.html
+# https://symfony.com/doc/current/validation.html
+
+App\Entity\Calificacion:
+    properties:
+        puntualidad:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - Positive:
+                  message: Este valor debe ser numérico.
+            - Choice:
+                  choices: [1, 2, 3, 4, 5]
+                  message: "Rango permitido de puntualidad: 1 al 5."
+        servicio:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - Positive:
+                  message: Este valor debe ser numérico.
+            - Choice:
+                  choices: [1, 2, 3, 4, 5]
+                  message: "Rango permitido de servicio: 1 al 5."
+        presencia:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - Positive:
+                  message: Este valor debe ser numérico.
+            - Choice:
+                  choices: [1, 2, 3, 4, 5]
+                  message: "Rango permitido de presencia: 1 al 5."
+        conocimiento:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - Positive:
+                  message: Este valor debe ser numérico.
+            - Choice:
+                  choices: [1, 2, 3, 4, 5]
+                  message: "Rango permitido de conocimiento: 1 al 5."
+        recomendado:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - Choice:
+                  choices: [0, 1]
+                  message: "El valor debe ser. [0:No ó 1:Sí]"
+
+App\Entity\Comision:
+    properties:
+        nombre:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - NotBlank:
+                  message: Este valor no debe estar en blanco.
+            - Length:
+                  min: 3
+                  max: 255
+                  minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+
+App\Entity\Departamento:
+    properties:
+        nombre:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - NotBlank:
+                  message: Este valor no debe estar en blanco.
+            - Length:
+                  min: 3
+                  max: 255
+                  minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        descripcion:
+            - Length:
+                  max: 255
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        estatus:
+            - Choice:
+                  choices: [0, 1]
+                  message: "Debe seleccionar un estado correcto. [0:Inactivo ó 1:Activo]"
+        sistemaTipo:
+            - Choice:
+                  choices: [1, 2]
+                  message: "Debe seleccionar un tipo de sistema correcto. [1:BucoServicio ó 2:BucoTalento]"
+        icono:
+            - Length:
+                  max: 500
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+
+App\Entity\Direccion:
+    properties:
+        tipo:
+            - Choice:
+                  choices: [1, 2, 3]
+                  message: "Debe seleccionar un tipo de dirección correcto. [1: Casa, 2: Trabajo, 3: Otro]"
+        direccion:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - NotBlank:
+                  message: Este valor no debe estar en blanco.
+            - Length:
+                  max: 255
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        latitud:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - NotBlank:
+                  message: Este valor no debe estar en blanco.
+            - Type:
+                  type: float
+                  message: "El tipo de valor debe ser {{ type }}."
+        longitud:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - NotBlank:
+                  message: Este valor no debe estar en blanco.
+            - Type:
+                  type: float
+                  message: "El tipo de valor debe ser {{ type }}."
+        residencia:
+            - Length:
+                  max: 50
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        pisoNumero:
+            - Length:
+                  max: 50
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        telefono:
+            - Length:
+                  max: 50
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        instruccion:
+            - Length:
+                  max: 50
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+
+App\Entity\Documento:
+    properties:
+        nombre:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - NotBlank:
+                  message: Este valor no debe estar en blanco.
+            - Length:
+                  min: 3
+                  max: 255
+                  minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        ruta:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - NotBlank:
+                  message: Este valor no debe estar en blanco.
+            - Length:
+                  min: 3
+                  max: 255
+                  minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+
+App\Entity\MetodoPago:
+    properties:
+        nombre:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - NotBlank:
+                  message: Este valor no debe estar en blanco.
+            - Length:
+                  min: 3
+                  max: 50
+                  minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        status:
+            - Choice:
+                  choices: [0, 1]
+                  message: Debe seleccionar un status correcto. [0:Inactivo ó 1:Activo]
+        pagoLinea:
+            - Choice:
+                  choices: [true, false]
+                  message: Debe seleccionar pagoLinea correcto. [0:No ó 1:Sí]
+
+App\Entity\MetodoPagoCliente:
+    properties:
+        numeroTarjeta:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+        mesAnioExpiracion:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - Length:
+                  min: 5
+                  max: 5
+                  exactMessage: "Este valor debe tener {{ limit }} caracteres."
+        cvv:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - Length:
+                  min: 3
+                  max: 3
+                  exactMessage: "Este valor debe tener {{ limit }} caracteres."
+        nombre:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - NotBlank:
+                  message: Este valor no debe estar en blanco.
+            - Length:
+                  min: 3
+                  max: 80
+                  minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        status:
+            - Choice:
+                  choices: [0, 1]
+                  message: "Debe seleccionar un estado correcto. [0:Inactivo ó 1:Activo]"
+        token:
+            - Length:
+                  max: 255
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+
+App\Entity\Notificacion:
+    properties:
+        asunto:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - NotBlank:
+                  message: Este valor no debe estar en blanco.
+            - Length:
+                  min: 3
+                  max: 100
+                  minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        descripcion:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - NotBlank:
+                  message: Este valor no debe estar en blanco.
+            - Length:
+                  min: 3
+                  max: 100
+                  minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+
+App\Entity\OrdenServicio:
+    fechaHora:
+        - NotNull:
+              message: Este valor no debe ser nulo.
+    latitud:
+        - Type:
+              type: float
+              message: "El tipo de valor debe ser {{ type }}."
+    longitud:
+        - Type:
+              type: float
+              message: "El tipo de valor debe ser {{ type }}."
+    direccion:
+        - Length:
+              max: 255
+              maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+    estatus:
+        - Choice:
+              choices: [1, 2, 3, 4, 5, 6, 7]
+              message: "Debe seleccionar un estado correcto. [1: En espera, 2: Confirmada, 3: Finalizada, 4: Rechazada, 5:Cancelada, 6: Pendiente por aprobación, 7: Calificada]"
+    descripcion:
+        - Length:
+              max: 255
+              maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+    observacion:
+        - Length:
+              max: 255
+              maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+
+App\Entity\Profesional:
+    properties:
+        nombre:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - NotBlank:
+                  message: Este valor no debe estar en blanco.
+            - Length:
+                  min: 3
+                  max: 45
+                  minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        apellido:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - NotBlank:
+                  message: Este valor no debe estar en blanco.
+            - Length:
+                  min: 3
+                  max: 45
+                  minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        identificacion:
+            - Length:
+                  max: 45
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        nacionalidad:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - NotBlank:
+                  message: Este valor no debe estar en blanco.
+            - Length:
+                  min: 3
+                  max: 45
+                  minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        direccion:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - NotBlank:
+                  message: Este valor no debe estar en blanco.
+            - Length:
+                  min: 3
+                  max: 255
+                  minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        tipoCuenta:
+            - Positive:
+                  message: Este valor no puede ser negativo.
+            - Choice:
+                  choices: [1, 2]
+                  message: "Los valores admitidos son: [1:Corriente ó 2:Ahorros]"
+        banco:
+            - Length:
+                  max: 45
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        cuentaBancaria:
+            - Length:
+                  max: 45
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        destrezaDetalle:
+            - Length:
+                  max: 500
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        estatus:
+            - Choice:
+                  choices: [0, 1]
+                  message: "Debe seleccionar un estado correcto. [0:Inactivo ó 1:Activo]"
+        latitud:
+            - Type:
+                  type: float
+                  message: "El tipo de valor debe ser {{ type }}."
+        longitud:
+            - Type:
+                  type: float
+                  message: "El tipo de valor debe ser {{ type }}."
+        radioCobertura:
+            - Type:
+                  type: float
+                  message: "El tipo de valor debe ser {{ type }}."
+        aniosExperiencia:
+            - GreaterThanOrEqual:
+                  value: 0
+                  message: "Los años de experiencia debe ser mayor o igual a {{ compared_value }}."
+
+App\Entity\Servicio:
+    properties:
+        nombre:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - NotBlank:
+                  message: Este valor no debe estar en blanco.
+            - Length:
+                  min: 3
+                  max: 255
+                  minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        descripcion:
+            - Length:
+                  max: 255
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        estatus:
+            - Choice:
+                  choices: [0, 1]
+                  message: "Debe seleccionar un estado correcto. [0:Inactivo ó 1:Activo]"
+        sistemaTipo:
+            - Choice:
+                  choices: [1, 2]
+                  message: "Debe seleccionar un tipo de sistema correcto. [1:BucoServicio ó 2:BucoTalento]"
+        icono:
+            - Length:
+                  max: 500
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+
+App\Entity\Tarea:
+    properties:
+        nombre:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - NotBlank:
+                  message: Este valor no debe estar en blanco.
+            - Length:
+                  min: 3
+                  max: 255
+                  minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        descripcion:
+            - Length:
+                  max: 255
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        estatus:
+            - Choice:
+                  choices: [0, 1]
+                  message: "Debe seleccionar un estado correcto. [0:Inactivo ó 1:Activo]"
+
+App\Entity\TipoDocumento:
+    properties:
+        nombre:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - NotBlank:
+                  message: Este valor no debe estar en blanco.
+            - Length:
+                  min: 3
+                  max: 255
+                  minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        tipoVencimiento:
+            - Choice:
+                  choices: [1, 2, 3]
+                  message: Debe seleccionar un tipo de vencimiento correcto. [1:Fecha específica - 2:Periódicamente - 3:Nunca vence]
+        requiereVerificacion:
+            - Choice:
+                  choices: [true, false]
+                  message: Debe indicar requiereVerificacion correcto. [0:No ó 1:Sí]
+        requiereCopia:
+            - Choice:
+                  choices: [true, false]
+                  message: Debe indicar requiereCopia correcto. [0:No ó 1:Sí]
+        estatus:
+            - Choice:
+                  choices: [0, 1]
+                  message: Debe seleccionar un estatus correcto. [0:Inactivo ó 1:Activo]
+
+App\Entity\TipoTarifa:
+    properties:
+        nombre:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - NotBlank:
+                  message: Este valor no debe estar en blanco.
+            - Length:
+                  min: 3
+                  max: 255
+                  minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        tipo:
+            - Choice:
+                  choices: [1, 2]
+                  message: Debe seleccionar un tipo correcto. [1:Monto fijo - 2:Monto variable]
+        estatus:
+            - Choice:
+                  choices: [0, 1]
+                  message: Debe seleccionar un estatus correcto. [0:Inactivo ó 1:Activo]
+
+App\Entity\User:
+    constraints:
+        - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+              fields: [email, username]
+              errorPath: username
+              message: "Este valor {{ value }} ya esta siendo utilizado."
+    properties:
+        name:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - NotBlank:
+                  message: Este valor no debe estar en blanco.
+            - Length:
+                  min: 3
+                  max: 150
+                  minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        email:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - NotBlank:
+                  message: Este valor no debe estar en blanco.
+            - Email:
+                  message: "El correo electrónico {{ value }} no es válido."
+            - Length:
+                  min: 3
+                  max: 255
+                  minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        username:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - NotBlank:
+                  message: Este valor no debe estar en blanco.
+            - Length:
+                  min: 3
+                  max: 255
+                  minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        password:
+            - NotNull:
+                  message: Este valor no debe ser nulo.
+            - NotBlank:
+                  message: Este valor no debe estar en blanco.
+            - Length:
+                  min: 8
+                  max: 255
+                  minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        genero:
+            - Choice:
+                  choices: [1, 2]
+                  message: "Los valores admitidos son: [1:Femenino ó 2:Masculino]"
+        foto:
+            - Length:
+                  max: 255
+                  maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."

@@ -1,0 +1,19 @@
+parameters:
+    list_roles:
+        ROLE_USER
+        ROLE_CLIENTE
+        ROLE_PROFESIONAL
+        ROLE_CALLCENTER
+        ROLE_ADMIN
+        ROLE_API
+        ROLE_SUPER_ADMIN
+
+
+### leyenda
+#        ROLE_USER                     Usuarios del Panel y Usuario Clientes del App
+#        ROLE_CLIENTE                  Usuarios Clientes del App
+#        ROLE_PROFESIONAL              Usuarios Profesionales del App
+#        ROLE_CALLCENTER               Usuarios CallCenters del Sistema
+#        ROLE_ADMIN                    Usuarios Administradores del Sistema
+#        ROLE_API                      Usuarios del API
+#        ROLE_SUPER_ADMIN              Usuario unico con todos los privilegios

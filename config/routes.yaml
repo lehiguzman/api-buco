@@ -1,0 +1,7 @@
+# redirecting the root
+root:
+    path: /
+    defaults:
+        _controller: FrameworkBundle:Redirect:urlRedirect
+        path: /api/doc
+        permanent: true

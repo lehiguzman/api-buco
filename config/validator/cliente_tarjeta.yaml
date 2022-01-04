@@ -1,0 +1,38 @@
+
+App\Entity\ClienteTarjetas:
+    properties:
+        cliente:
+            - NotNull:
+                message: Este valor no debe ser nulo.
+        nombre:
+            - NotNull:
+                message: Este valor no debe ser nulo.
+            - Length:
+                min: 3
+                max: 50
+                minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        numero:
+            - NotNull:
+                message: Este valor no debe ser nulo.
+            - Length:
+                max: 20
+                maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        cvv:
+            - NotNull:
+                message: Este valor no debe ser nulo.
+            - Length:
+                max: 255
+                maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        tokenPayus:
+            - Length:
+                max: 255
+                maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
+        fechaExpiracion:
+            - NotNull:
+                message: Este valor no debe ser nulo.
+            - Length:
+                min: 5
+                max: 5
+                minMessage: "Este valor es demasiado corto. Debe tener {{ limit }} caracteres o más."
+                maxMessage: "Este valor es demasiado largo. Debe tener {{ limit }} caracteres o menos."
